@@ -2,17 +2,17 @@
 // OTHER
 function savePackage($checked, $notchecked) {
 	$q = "UPDATE coinpackage SET cpenabled = 1 WHERE cpid IN ($checked)";
-	mysql_query($q);
+	mysqli_query($q);
 
 	$q = "UPDATE coinpackage SET cpenabled = 0 WHERE cpid IN ($notchecked)";
-	mysql_query($q);
+	mysqli_query($q);
 
 	return true;
 }
 function saveGeneralSettings($data) {
 	foreach ($data as $key => $val) {
 		$q = "UPDATE config SET cf_value = '$val' WHERE cf_name = '$key'";
-		mysql_query($q);
+		mysqli_query($q);
 	}
 	return true;
 }
@@ -44,7 +44,7 @@ function computeGameResult($game_id, $bi_id, $commission, $total_coins) {
 }
 function closeGame($game_id) {
 	$q = "UPDATE games SET g_isClosed = 1, g_isCancelled = 0 WHERE g_id = '$game_id'";
-	mysql_query($q);
+	mysqli_query($q);
 
 	$param['filename'] = 'all_games.txt';
 	$param['target_field'] = 'g_isClosed';
@@ -58,7 +58,7 @@ function closeGame($game_id) {
 }
 function cancelGame($game_id) {
 	$q = "UPDATE games SET g_isClosed = 0, g_isCancelled = 1 WHERE g_id = '$game_id'";
-	mysql_query($q);
+	mysqli_query($q);
 
 	$param['filename'] = 'all_games.txt';
 	$param['target_field'] = 'g_isCancelled';
@@ -83,10 +83,10 @@ function returnUserBets($winners, $g_id = false, $was_cancelled = false) {
 		$total_bets += $total_bet;
 		$now = time();
 		$q = "INSERT INTO coin_deals (user_id, cd_amount, cd_inout, tx_id, cd_type, cd_tx_date) VALUES ('$user_id', '$total_bet', 'in', '0', 'bet return', '$now')";
-		mysql_query($q);
+		mysqli_query($q);
 
 		// append all_coin_deals.txt cache
-	    $coindeal['cd_id'] = mysql_insert_id();
+	    $coindeal['cd_id'] = mysqli_insert_id();
 	    $coindeal['user_id'] = $user_id;
 	    $coindeal['g_id'] = 0;
 	    $coindeal['cd_amount'] = $total_bet;
@@ -117,7 +117,7 @@ function increaseUserCoins($uid, $coins) {
 	global $config;
 	$basedir = $config['basedir'];
 	$q = "UPDATE users SET user_coins = user_coins + $coins WHERE user_id = '$uid'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$file = $basedir . '/temp/all_users.txt';
 	if (file_exists($file)) {
@@ -219,8 +219,8 @@ function duplicateGame($game_id) {
 	$q .= "(g_title, g_title_jp, g_description, g_description_jp, g_image, g_categories, g_categories_jp, g_tags, g_tags_jp, g_betInfo, g_betInfo_jp, g_addInfo, g_addInfo_jp, g_schedFrom, g_schedTo, g_timezone, g_coinPerBet, g_houseCom, g_publishType, g_isRecommend, g_isTrial, g_japPage, g_engPage, g_betMinimum, g_isCancelled, g_isClosed, g_isDeleted) ";
 	$q .= "VALUES ";
 	$q .= "('$title', '$title_jp', '$description', '$description_jp', '$imgfilename', '$category', '$category_jp', '$tags', '$tags_jp', '$bet_info', '$bet_info_jp', '$bet_condition', '$bet_condition_jp', '$reserve_time1', '$reserve_time2', '$timezone', '$coin_per_bet', '$house_comm', '$publish_type', '$is_recommend', '$is_trial', '$jap_page', '$eng_page', '$bet_minimum', '0', '0', '0')";
-	mysql_query($q);
-	$insert_id = mysql_insert_id();
+	mysqli_query($q);
+	$insert_id = mysqli_insert_id();
 	
 	$cachefile = $basedir . '/temp/bet_items_active.php';
 	$cachedata = false;
@@ -259,7 +259,7 @@ function duplicateGame($game_id) {
 function insertHouseCommission($g_id, $amount) {
 	$now = time();
 	$q = "INSERT INTO coin_deals (user_id, g_id, cd_amount, cd_inout, tx_id, cd_type, cd_tx_date) VALUES ('0', '$g_id', '$amount', 'in', '0', 'house com', '$now')";
-	mysql_query($q);
+	mysqli_query($q);
 	return true;
 }
 function insertUserWinnings($winners, $coin_div, $total_bet_amt, $game_id) {
@@ -289,10 +289,10 @@ function insertUserWinnings($winners, $coin_div, $total_bet_amt, $game_id) {
 		$won_users[] = $all_users[$w['user_id']];
 		increaseUserCoins($user_id, $total_win_amt);
 		$q = "INSERT INTO coin_deals (user_id, g_id, cd_amount, cd_inout, tx_id, cd_type, cd_tx_date) VALUES ('$user_id', '$game_id', '$total_win_amt', 'in', '0', 'bet winning', '$now')";
-		mysql_query($q);
+		mysqli_query($q);
 
 		// append all_coin_deals.txt cache
-	    $coindeal['cd_id'] = mysql_insert_id();
+	    $coindeal['cd_id'] = mysqli_insert_id();
 	    $coindeal['user_id'] = $user_id;
 	    $coindeal['g_id'] = $game_id;
 	    $coindeal['cd_amount'] = $total_win_amt;
@@ -332,39 +332,39 @@ function setMaintenance($m_on, $m_off) {
 	}
 	
 	$q = "UPDATE config SET cf_value = '$mode' WHERE cf_name = 'maintenance_mode'";
-	mysql_query($q);
+	mysqli_query($q);
 	return 'success';
 }
 
 function setTwitter($twitter_id, $tweet_live, $tweet_ends) {
 	$q = "UPDATE config SET cf_value = '$twitter_id' WHERE cf_name = 'twitter id'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$q = "UPDATE config SET cf_value = '$tweet_live' WHERE cf_name = 'tweet when game live'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$q = "UPDATE config SET cf_value = '$tweet_ends' WHERE cf_name = 'tweet when game ends'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	return 'success';
 }
 function setBotSystem($bot_system, $bot_username) {
 	$q = "UPDATE config SET cf_value = '$bot_system' WHERE cf_name = 'bot system'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$q = "UPDATE config SET cf_value = '$bot_username' WHERE cf_name = 'bot username'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	return 'success';
 }
 function setBetItemWinner($bi_id) {
 	$q = "UPDATE bet_item SET bi_winner = 1 WHERE bi_id = '$bi_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	return true;
 }
 function setUserBetWinners($game_id, $bi_id) {
 	$q = "UPDATE user_bets SET ub_iswinner = 1 WHERE g_id = '$game_id' AND bi_id = '$bi_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	return true;
 }
 // /SET
@@ -373,12 +373,12 @@ function setUserBetWinners($game_id, $bi_id) {
 function getUserInfo($uid) {
 	$data = array();
 	$q = "SELECT user_name, user_pic FROM users WHERE user_id = '$uid' LIMIT 0, 1";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			return $row;
 		}
 	}
@@ -387,11 +387,11 @@ function getUserInfo($uid) {
 }
 function getGameTotalPlacedCoins($game_id) {
 	$q = "SELECT sum(ub_coins) as total_coins FROM user_bets WHERE g_id = '$game_id' GROUP BY g_id";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			return $row['total_coins'];
 		}
 	}
@@ -418,11 +418,11 @@ function getUserFromCache($user_id) {
 function getUserBetWinners($game_id, $bi_id) {
 	$data = array();
 	$q = "SELECT user_id, ub_notify, sum(ub_coins) as total_bet FROM user_bets WHERE g_id = '$game_id' AND bi_id = '$bi_id' AND ub_iswinner = '1' GROUP BY user_id";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -432,11 +432,11 @@ function getUserBetWinners($game_id, $bi_id) {
 function getUserBets($game_id, $bi_id) {
 	$data = array();
 	$q = "SELECT user_id, ub_notify, sum(ub_coins) as total_bet FROM user_bets WHERE g_id = '$game_id' GROUP BY user_id";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -446,11 +446,11 @@ function getUserBets($game_id, $bi_id) {
 function getCoinPackages() {
 	$data = array();
 	$q = "SELECT * FROM coinpackage";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -461,11 +461,11 @@ function getCoinPackages() {
 function getLanguages() {
 	$data = array();
 	$q = "SELECT * FROM languages";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -476,12 +476,12 @@ function getLanguages() {
 function getCategories() {
 	$data = array();
 	$q = "SELECT * FROM sports_category";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -492,12 +492,12 @@ function getCategories() {
 function getTags() {
 	$data = array();
 	$q = "SELECT * FROM sports_tags";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -507,12 +507,12 @@ function getTags() {
 function getAllUsers() {
 	$data = array();
 	$q = "SELECT * FROM users";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[$row['user_id']] = $row;
 		}
 	}
@@ -521,12 +521,12 @@ function getAllUsers() {
 }
 function getTag($tag, $lang = 'jp') {
 	$q = "SELECT * FROM sports_tags WHERE st_name = '$tag' AND st_lang = '$lang'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			return $row['st_name'];
 		}
 	}
@@ -579,12 +579,12 @@ function getAllGames($where = false) {
 		// all games
 		$q = "SELECT * FROM games WHERE g_isDeleted = 0 ORDER BY g_id DESC";
 	}
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -595,12 +595,12 @@ function getAllGames($where = false) {
 function getBetItems($game_id) {
 	$data = array();
 	$q = "SELECT * FROM bet_item WHERE bi_game_id = '$game_id' ORDER BY bi_id ASC";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -623,12 +623,12 @@ function getSuffix($game) {
 }
 function getBetItemName($bi_id, $suffix = '_jp') {
 	$q = "SELECT bi_description, bi_description_jp FROM bet_item WHERE bi_id = '$bi_id' LIMIT 0, 1";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			// if suffix is english but there's no english description for the bet
 			if (!$row['bi_description'] AND $suffix == '') {
 				return $row['bi_description_jp']; // get jp description instead
@@ -649,11 +649,11 @@ function getBetItemName($bi_id, $suffix = '_jp') {
 function getAllBets($game_id) {
 	$data = array();
 	$q = "SELECT * FROM user_bets WHERE g_id = '$game_id'";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -674,10 +674,10 @@ function getAllBets($game_id = false) {
 
 	// first, get all the bi ids of all the bets
 	$q = "SELECT bi_id FROM bet_item $is_where";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			// based from the bet_item table data
 			// populate the $bi_ids array with bi_id as the key and false as the initial value
 			// this will later be used to determine which bet items have bets and which have none
@@ -687,11 +687,11 @@ function getAllBets($game_id = false) {
 
 	// now, get all the bets
 	$q = "SELECT * FROM user_bets $is_where2";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			// based from the user_bets table data,
 			// loop and change the value to true
 			// if true, it means that there were users who betted on this item 
@@ -728,11 +728,11 @@ function getAllBets($game_id = false) {
 function getAllBetsByBiId($game_id, $bi_id) {
 	$data = array();
 	$q = "SELECT * FROM user_bets WHERE g_id = '$game_id' AND bi_id = '$bi_id'";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -851,12 +851,12 @@ function getInfoPerBetItemByUsername($all_bets, $bet_items2) {
 function getGame($game_id) {
 	$data = array();
 	$q = "SELECT * FROM games WHERE g_id = '$game_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data = $row;
 		}
 	}
@@ -867,12 +867,12 @@ function getGame($game_id) {
 function getAdmins() {
 	$data = array();
 	$q = "SELECT * FROM users WHERE user_isadmin = '1'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -912,12 +912,12 @@ function getGameStatus($g, $lang) {
 function getUserBetsByUserId($user_id) {
 	$data = array();
 	$q = "SELECT * FROM user_bets WHERE user_id = '$user_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -931,12 +931,12 @@ function getUserLikes($user_id) {
 	$temp = array();
 	$i = 0;
 	$q = "SELECT * FROM user_likes WHERE user_id = '$user_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$temp[] = $row;
 		}
 	}
@@ -956,12 +956,12 @@ function getUserLikes($user_id) {
 function getUserCoinDeals($user_id) {
 	$data = array();
 	$q = "SELECT * FROM coin_deals WHERE user_id = '$user_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -974,12 +974,12 @@ function getUserBookmarks($user_id) {
 	$temp = array();
 	$i = 0;
 	$q = "SELECT * FROM user_bookmarks WHERE user_id = '$user_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$temp[] = $row;
 		}
 	}
@@ -1102,11 +1102,11 @@ function getAllUserBetsNoWinnerAndWriteToCache() {
 	$all_user_bets = array();
 	
 	$q = "SELECT * FROM user_bets";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 	
 	if (!$numrows) { return $user_bets; }
-	while ($row = mysql_fetch_array($result)) {
+	while ($row = mysqli_fetch_array($result)) {
 		$all_user_bets[] = $row;
 	}
 	
@@ -1136,11 +1136,11 @@ function getAllUserBetsNoWinnerAndWriteToCache() {
 function getAllTransactions() {
 	$data = array();
 	$q = "SELECT * FROM transactions ORDER BY tr_id DESC";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -1150,11 +1150,11 @@ function getAllTransactions() {
 function getTransactions($from, $to) {
 	$data = array();
 	$q = "SELECT * FROM transactions WHERE tr_date >= '$from' AND tr_date <= '$to' ORDER BY tr_id DESC";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -1164,11 +1164,11 @@ function getTransactions($from, $to) {
 function getUserRegistrations($from, $to) {
 	$data = array();
 	$q = "SELECT * FROM user WHERE user_registered >= '$from' AND user_registered <= '$to' ORDER BY user_id DESC";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -1178,11 +1178,11 @@ function getUserRegistrations($from, $to) {
 function getHouseCommissions($from, $to) {
 	$data = array();
 	$q = "SELECT * FROM coin_deals WHERE cd_type = 'house com' AND cd_tx_date >= '$from' AND cd_tx_date <= '$to' ORDER BY cd_id DESC";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -1194,16 +1194,16 @@ function getHouseCommissions($from, $to) {
 // add
 function addPackage($coinvalue, $dollarvalue) {
 	$q = "SELECT * FROM coinpackage WHERE cpcoin = '$coinvalue' AND cpamount = '$dollarvalue' LIMIT 0, 1";
-	$result = mysql_query($q);
-	$numrows = @mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = @mysqli_num_rows($result);
 
 
 	if ($numrows) {
 		return false;
 	} else {
 		$q = "INSERT INTO coinpackage (cpcoin, cpamount, cpenabled) VALUES ('$coinvalue', '$dollarvalue', 0)";
-		mysql_query($q);
-		return mysql_insert_id();
+		mysqli_query($q);
+		return mysqli_insert_id();
 	}
 }
 
@@ -1215,50 +1215,50 @@ function addNewAdmin($data) {
 	$reg = date('m-d-Y');
 
 	$q = "INSERT INTO users (user_name, user_password, user_fullname, user_email, user_lastlogin, user_isadmin, user_status) VALUES ('$nick', '$password', '$name', '$email', '', '1', '1')";
-		mysql_query($q);
-		return mysql_insert_id();
+		mysqli_query($q);
+		return mysqli_insert_id();
 }
 
 function addTag($tag, $description = '', $lang = 'jp') {
 	$q = "INSERT INTO sports_tags (st_name, st_description, st_lang) VALUES ('$tag', '$description', '$lang')";
-		mysql_query($q);
-		return mysql_insert_id();
+		mysqli_query($q);
+		return mysqli_insert_id();
 }
 
 function addBetItem($game_id, $description = '', $description_en = '') {
 	$q = "SELECT * FROM bet_item WHERE bi_game_id = '$game_id' AND bi_description_jp = '$description' LIMIT 0, 1";
-	$result = mysql_query($q);
-	$numrows = @mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = @mysqli_num_rows($result);
 
 
 	if ($numrows) {
 		return false;
 	} else {
 		$q = "INSERT INTO bet_item (bi_game_id, bi_description, bi_description_jp, bi_winner) VALUES ('$game_id', '$description_en', '$description', '0')";
-		mysql_query($q);
-		return mysql_insert_id();
+		mysqli_query($q);
+		return mysqli_insert_id();
 	}
 }
 
 function deleteBetItem($game_id) {
 	$q = "DELETE FROM bet_item WHERE bi_game_id = '$game_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 	return true;
 }
 function addCouponCode($keyword, $coins, $is_welcome = 0) {
 	$q = "SELECT c_id FROM coupons WHERE c_keyword = '$keyword' LIMIT 0, 1";
-	$result = mysql_query($q);
-	$numrows = @mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = @mysqli_num_rows($result);
 
 
 	if ($numrows) {
 		$q = "UPDATE coupons SET c_isWelcome = '$is_welcome', c_coins = '$coins' WHERE c_keyword = '$keyword'";
-		mysql_query($q);
+		mysqli_query($q);
 		return true;
 	} else {
 		$q = "INSERT INTO coupons (c_keyword, c_coins, c_isWelcome) VALUES ('$keyword', '$coins', '$is_welcome')";
-		mysql_query($q);
-		return mysql_insert_id();
+		mysqli_query($q);
+		return mysqli_insert_id();
 	}
 }
 function addActivity($user_id, $activity, $seen, $fieldname, $fieldvalue) {
@@ -1266,14 +1266,14 @@ function addActivity($user_id, $activity, $seen, $fieldname, $fieldvalue) {
 	// 'like','unlike','withdraw','deposit','userfollow','bookmark','unbookmark','won','joinedgame','gamecancelled'
 	
 	$q = "SELECT ua_id FROM user_activities WHERE ua_seen = '$seen' AND ua_activity = '$activity' AND ua_fieldname = '$fieldname' AND ua_fieldvalue = '$fieldvalue' AND user_id = '$user_id' LIMIT 0, 1";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 	
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$ua_id = $row['ua_id'];
 			$q = "DELETE FROM user_activities WHERE ua_id = '$ua_id'";
-			mysql_query($q);
+			mysqli_query($q);
 			break;
 		}
 	}
@@ -1282,7 +1282,7 @@ function addActivity($user_id, $activity, $seen, $fieldname, $fieldvalue) {
 	$q = "INSERT INTO user_activities (ua_seen, user_id, ua_fieldname, ua_fieldvalue, ua_activity, ua_date) ";
 	$q .= "VALUES ";
 	$q .= "('$seen', '$user_id', '$fieldname', '$fieldvalue', '$activity', '$now')";
-	mysql_query($q);
+	mysqli_query($q);
 	return true;
 }
 // add
@@ -1293,7 +1293,7 @@ function deleteGame($game_id) {
 	$data = array();
 	$q = "UPDATE games SET g_isDeleted = 1 WHERE g_id = '$game_id'";
 	//$q = "DELETE FROM games WHERE g_id = '$game_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$filename = $config['basedir'] . '/temp/all_games.txt';
 	if (file_exists($filename)) {

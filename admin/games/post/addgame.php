@@ -95,8 +95,8 @@ if (!$title_en AND $eng_page) {
 $is_trial = (isset($_POST['isTrial'])) ? $_POST['isTrial'] : '';
 
 $q = "SELECT g_id FROM games WHERE g_title = '$title' AND g_schedFrom = '$reserve_time1' AND g_schedTo = '$reserve_time2'";
-$result = mysql_query($q);
-$numrows = @mysql_num_rows($result);
+$result = mysqli_query($q);
+$numrows = @mysqli_num_rows($result);
 
 if ($numrows) {
 	// duplicate content
@@ -135,8 +135,8 @@ if ($numrows) {
 	$q .= "(g_title, g_title_jp, g_description, g_description_jp, g_image, g_categories, g_categories_jp, g_tags, g_tags_jp, g_betInfo, g_betInfo_jp, g_addInfo, g_addInfo_jp, g_schedFrom, g_schedTo, g_timezone, g_coinPerBet, g_houseCom, g_publishType, g_isRecommend, g_isTrial, g_japPage, g_engPage, g_betMinimum, g_isCancelled, g_isClosed, g_isDeleted) ";
 	$q .= "VALUES ";
 	$q .= "('$title_en','$title', '$description_en', '$description', '$imgfilename', '$category_en', '$category', '$tags_en', '$tags', '$bet_info_en', '$bet_info', '$bet_condition_en', '$bet_condition', '$reserve_time1', '$reserve_time2', '$timezone', '$coin_per_bet', '$house_comm', '$publish_type', '$is_recommend', '$is_trial', '$jap_page', '$eng_page', '$bet_minimum', '0', '0', '0')";
-	mysql_query($q);
-	$insert_id = mysql_insert_id();
+	mysqli_query($q);
+	$insert_id = mysqli_insert_id();
 
 	$tags = explode(",", $tags);
 	foreach ($tags as $tag) {

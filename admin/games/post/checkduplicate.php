@@ -26,8 +26,8 @@ if ($title AND $reserve_time) {
 	$reserve_time2 = strtotime(trim($x[1]));
 
 	$q = "SELECT g_id FROM games WHERE g_title = '$title' AND g_schedFrom = '$reserve_time1' AND g_schedTo = '$reserve_time2'";
-	$result = mysql_query($q);
-	$numrows = @mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = @mysqli_num_rows($result);
 
 	if ($numrows) {
 		//Duplicate Record

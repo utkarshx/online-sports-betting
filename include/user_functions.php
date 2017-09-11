@@ -12,7 +12,7 @@ function changepass($op, $np1, $np2, $uid) {
 	}
 	
 	$q = "UPDATE users SET user_password = '$pass_enc' WHERE user_id = '$uid'";
-	mysql_query($q);
+	mysqli_query($q);
 	$user_id = $uid;
 	$file = $basedir . '/temp/all_users.txt';
 	if (file_exists($file)) {
@@ -33,8 +33,8 @@ function _checkoldpass($op, $uid) {
 	global $config;
 	$pass_enc = md5($config['private_key'] . $op); // encrypt the password
 	$q = "SELECT user_id FROM users WHERE user_password = '$pass_enc' AND user_id = '$uid'";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 	
 	if ($numrows) {
 		return true; // valid
@@ -46,7 +46,7 @@ function changeLangAndTz($lang, $tz, $user_id) {
 	global $config;
 	$basedir = $config['basedir'];
 	$q = "UPDATE users SET user_lang = '$lang', user_timezone = '$tz' WHERE user_id = '$user_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$file = $basedir . '/temp/all_users.txt';
 	if (file_exists($file)) {
@@ -202,7 +202,7 @@ function updateUserImageFile($user_id, $imgfilename) {
 	global $config;
 	$basedir = $config['basedir'];
 	$q = "UPDATE users SET user_pic = '$imgfilename' WHERE user_id = '$user_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$file = $basedir . '/temp/all_users.txt';
 	if (file_exists($file)) {
@@ -217,7 +217,7 @@ function updateUserNotifications($user_id, $ms, $gr, $gd, $mr, $sn) {
 	global $config;
 	$basedir = $config['basedir'];
 	$q = "UPDATE users SET user_notify = '$gr', user_sendmail = '$ms', user_remind = '$mr', user_gamedigest = '$gd', user_sitenews = '$sn' WHERE user_id = '$user_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$file = $basedir . '/temp/all_users.txt';
 	if (file_exists($file)) {
@@ -237,7 +237,7 @@ function updateUserPrivacy($user_id, $priv_page, $priv_result) {
 	global $config;
 	$basedir = $config['basedir'];
 	$q = "UPDATE users SET user_privacy_page = '$priv_page', user_privacy_result = '$priv_result' WHERE user_id = '$user_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$file = $basedir . '/temp/all_users.txt';
 	if (file_exists($file)) {
@@ -252,7 +252,7 @@ function updateUserPrivacy($user_id, $priv_page, $priv_result) {
 }
 function updateActivities($user_id) {
 	$q = "UPDATE user_activities SET ua_seen = 1 WHERE user_id = '$user_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	return true;
 }
 function editUserProfile($user_id, $bio, $fullname, $sex, $web, $ra) {
@@ -265,7 +265,7 @@ function editUserProfile($user_id, $bio, $fullname, $sex, $web, $ra) {
 	} else {
 		$q = "UPDATE users SET user_bio = '$bio', user_fullname = '$fullname', user_sex = '$sex', user_website = '$web' WHERE user_id = '$user_id'";
 	}
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$file = $basedir . '/temp/all_users.txt';
 	if (file_exists($file)) {
@@ -328,19 +328,19 @@ function editCreditInfo($param) {
 	
 	if ($action == 'update') {
 		$q = "UPDATE users_billing_address SET bill_fullname = '$bf', bill_postal = '$bpost', bill_prefecture = '$bpref', bill_address1 = '$bad1', bill_address2 = '$bad2', bill_phone = '$bpho' WHERE bill_id = '$bill_id'";
-		mysql_query($q);
+		mysqli_query($q);
 	} elseif ($action == 'insert') {
 		$q = "INSERT INTO users_billing_address ";
 		$q .= "(user_id, bill_fullname, bill_postal, bill_prefecture, bill_address1, bill_address2, bill_phone) VALUES ";
 		$q .= "('$user_id', '$bf', '$bpost', '$bpref', '$bad1', '$bad2', '$bpho')";
-		mysql_query($q);
-		$bill_id = mysql_insert_id();
+		mysqli_query($q);
+		$bill_id = mysqli_insert_id();
 	} else {
 		// do nothing
 	}
 	
 	$q = "UPDATE users_cc SET cc_holder_name = '$cc_holder_name', cc_exp_mo = '$cc_exp_mo', cc_exp_yr = '$cc_exp_yr', bill_id = '$bill_id' WHERE cc_id = '$cc_id'";
-	mysql_query($q);
+	mysqli_query($q);
 	return true;
 }
 /*
@@ -380,30 +380,30 @@ function addCreditInfo($param) {
 		$q = "INSERT INTO users_billing_address ";
 		$q .= "(user_id, bill_fullname, bill_postal, bill_prefecture, bill_address1, bill_address2, bill_phone) VALUES ";
 		$q .= "('$user_id', '$bf', '$bpost', '$bpref', '$bad1', '$bad2', '$bpho')";
-		mysql_query($q);
-		$bill_id = mysql_insert_id();
+		mysqli_query($q);
+		$bill_id = mysqli_insert_id();
 	}
 	
 	$q = "INSERT INTO users_cc (cc_select, cc_type, cc_number, cc_holder_name, cc_exp_mo, cc_exp_yr, user_id, bill_id) VALUES ";
 	$q .= "('cc', '$cc_type', '$cc_number', '$cc_holder_name', '$cc_exp_mo', '$cc_exp_yr', '$user_id', '$bill_id')";
-	mysql_query($q);
+	mysqli_query($q);
 	return true;
 }
 
 function deleteCreditCard($cc_id, $bill_id) {
 	if (!checkBillingMultiple($bill_id)) {
-		mysql_query("DELETE FROM users_billing_address WHERE bill_id = '$bill_id'");
+		mysqli_query("DELETE FROM users_billing_address WHERE bill_id = '$bill_id'");
 	}
 	
-	mysql_query("DELETE FROM users_cc WHERE cc_id = '$cc_id'");
+	mysqli_query("DELETE FROM users_cc WHERE cc_id = '$cc_id'");
 	return true;
 }
 
 function checkBillingMultiple($bill_id) {
 	$q = "SELECT bill_id FROM users_cc WHERE bill_id = '$bill_id'";
-		$result = mysql_query($q);
+		$result = mysqli_query($q);
 	
-		$numrows = mysql_num_rows($result);
+		$numrows = mysqli_num_rows($result);
 		if ($numrows > 1) {
 			return true;
 		} else {
@@ -426,18 +426,18 @@ function checkBillingAction($param) {
 	$bill_id = $param['bill_id'];
 	
 	$q = "SELECT * FROM users_cc WHERE bill_id = '$bill_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows > 1) {
 		$q = "SELECT * FROM users_billing_address WHERE bill_id = '$bill_id' LIMIT 0, 1";
-		$result = mysql_query($q);
+		$result = mysqli_query($q);
 	
-		$numrows2 = mysql_num_rows($result);
+		$numrows2 = mysqli_num_rows($result);
 	
 		if ($numrows2) {
-			while ($row = mysql_fetch_array($result)) {
+			while ($row = mysqli_fetch_array($result)) {
 				if ($bpos == $row['bill_postal'] 
 					AND $bpref == $row['bill_prefecture'] 
 					AND $bad1 == $row['bill_address1'] 
@@ -467,11 +467,11 @@ function checkBillingDuplicate($param) {
 	$q = "SELECT bill_id FROM users_billing_address WHERE ";
 	$q .= "user_id = '$user_id' AND bill_fullname = '$bf' AND bill_postal = '$bpost' AND ";
 	$q .= "bill_prefecture = '$bpref' AND bill_address1 = '$bad1' AND bill_address2 = '$bad2' AND bill_phone = '$bpho'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			return $row['bill_id'];			
 		}
 	} else {
@@ -852,12 +852,12 @@ function getAllRange($coin_deals) {
 function getAllUserBets($user_id) {
 	$data = array();
 	$q = "SELECT * FROM user_bets WHERE user_id = '$user_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -867,12 +867,12 @@ function getAllUserBets($user_id) {
 function getCoinPackages() {
 	$data = array();
 	$q = "SELECT * FROM coinpackage";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[$row['cpcoin']] = $row;
 		}
 	}
@@ -886,11 +886,11 @@ function getAllBetsByUserId($user_id, $limit = false) {
 		$limit = '';
 	}
 	$q = "SELECT * FROM user_bets WHERE user_id = '$user_id' ORDER BY ub_id DESC $limit";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -900,12 +900,12 @@ function getPaymentInfo($user_id = 0, $cc_id = 0) {
 	$data = array();
 	if ($user_id) {
 		$q = "SELECT * FROM users_cc WHERE user_id = '$user_id'";
-		$result = mysql_query($q);
-		$numrows = mysql_num_rows($result);
+		$result = mysqli_query($q);
+		$numrows = mysqli_num_rows($result);
 	
 		if ($numrows) {
 			$i = 0;
-			while ($row = mysql_fetch_array($result)) {
+			while ($row = mysqli_fetch_array($result)) {
 				$bill_id = $row['bill_id'];
 				$data[$i] = $row;
 				$data[$i]['ba'] = getBillAddress($bill_id);
@@ -915,11 +915,11 @@ function getPaymentInfo($user_id = 0, $cc_id = 0) {
 	}
 	if ($cc_id) {
 		$q = "SELECT * FROM users_cc WHERE cc_id = '$cc_id' LIMIT 0, 1";
-		$result = mysql_query($q);
-		$numrows = mysql_num_rows($result);
+		$result = mysqli_query($q);
+		$numrows = mysqli_num_rows($result);
 	
 		if ($numrows) {
-			while ($row = mysql_fetch_array($result)) {
+			while ($row = mysqli_fetch_array($result)) {
 				$bill_id = $row['bill_id'];
 				$data = $row;
 				$data['ba'] = getBillAddress($bill_id);
@@ -931,11 +931,11 @@ function getPaymentInfo($user_id = 0, $cc_id = 0) {
 function getBillAddress($bill_id) {
 	$data = array();
 	$q = "SELECT * FROM users_billing_address WHERE bill_id = '$bill_id' LIMIT 0, 1";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data = $row;
 		}
 	}
@@ -1188,8 +1188,8 @@ function sortMyBets($bets, $sort) {
 }
 function paymentInfoExists($user_id) {
 	$q = "SELECT cc_id FROM users_cc WHERE user_id = '$user_id' LIMIT 0, 1";
-	$result = mysql_query($q);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
 		return true;

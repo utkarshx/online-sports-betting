@@ -19,11 +19,11 @@ $user_id = (isset($_SESSION['user_id'])) ? $_SESSION['user_id'] : 0;
 
 // get more config
 $q = "SELECT * FROM config";
-$result = mysql_query($q);
-$numrows = mysql_num_rows($result);
+$result = mysqli_query($q);
+$numrows = mysqli_num_rows($result);
 
 if ($numrows) {
-	while ($row = mysql_fetch_array($result)) {
+	while ($row = mysqli_fetch_array($result)) {
 		$config[$row['cf_name']] = $row['cf_value'];
 	}
 }

@@ -22,18 +22,18 @@ $tag_desc = (isset($_POST['tagDesc'])) ? trim($_POST['tagDesc']) : '';
 if ($tag_name) {
 	$tag_name = trim($tag_name);
 	$q = "SELECT * FROM sports_tags WHERE st_name = '$tag_name'";
-	$result = mysql_query($q);
-	$numrows = @mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = @mysqli_num_rows($result);
 
 
 	if ($numrows) {
 		$q = "UPDATE sports_tags SET st_description = '$tag_desc', st_lang = '$lang' WHERE st_name = '$tag_name'";
-		$result = mysql_query($q);
+		$result = mysqli_query($q);
 		echo json_encode(array('error' => '', 'status' => 'success'));
 	} else {
 		$q = "INSERT INTO sports_tags (st_name, st_lang, st_description) VALUES ('$tag_name', '$lang', '$tag_desc')";
-		mysql_query($q);
-		//return mysql_insert_id();
+		mysqli_query($q);
+		//return mysqli_insert_id();
 		echo json_encode(array('error' => '', 'status' => 'success'));
 	}
 }

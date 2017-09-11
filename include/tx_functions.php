@@ -36,7 +36,7 @@ function addCreditCardAndBilling($param, $uid) {
 	$package = $param['checked_package'];
 
 	$q = "INSERT INTO users_cc (cc_select, cc_type, cc_number, cc_holder_name, cc_exp_mo, cc_exp_yr, user_id, bill_id) VALUES ('cc','$ty','$nu','$hn','$em','$ey','$uid',$bill_id)";
-	mysql_query($q);
+	mysqli_query($q);
 	return $package;
 }
 /*
@@ -60,8 +60,8 @@ function addBillingAddress($param, $uid) {
 	$ba2 = $param['bill_address2'];
 	$bph = $param['bill_phone'];
 	$q = "INSERT INTO users_billing_address (user_id, bill_fullname, bill_postal, bill_prefecture, bill_address1, bill_address2, bill_phone) VALUES ('$uid','$bf','$bp','$bpr','$ba1','$ba2','$bph')";
-	mysql_query($q);
-	return mysql_insert_id(); 
+	mysqli_query($q);
+	return mysqli_insert_id(); 
 }
 // /ADD
 
@@ -69,12 +69,12 @@ function addBillingAddress($param, $uid) {
 function getCreditCards($user_id) {
 	$data = array();
 	$q = "SELECT * FROM users_cc WHERE user_id = '$user_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[] = $row;
 		}
 	}
@@ -84,12 +84,12 @@ function getCreditCards($user_id) {
 function getBillAddresses($user_id) {
 	$data = array();
 	$q = "SELECT * FROM users_billing_address WHERE user_id = '$user_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[$row['bill_id']] = $row;
 		}
 	}
@@ -99,12 +99,12 @@ function getBillAddresses($user_id) {
 function getCoinPackages() {
 	$data = array();
 	$q = "SELECT * FROM coinpackage WHERE cpenabled = 1 ORDER BY cpid DESC";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data[$row['cpid']] = $row;
 		}
 	}
@@ -114,12 +114,12 @@ function getCoinPackages() {
 function getCoinPackage($cpid) {
 	$data = array();
 	$q = "SELECT * FROM coinpackage WHERE cpid = '$cpid' AND cpenabled = 1 LIMIT 0, 1";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data = $row;
 		}
 	}
@@ -129,12 +129,12 @@ function getCoinPackage($cpid) {
 function getCreditCard($cc_id) {
 	$data = array();
 	$q = "SELECT * FROM users_cc WHERE cc_id = '$cc_id' LIMIT 0, 1";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data = $row;
 		}
 	}
@@ -144,12 +144,12 @@ function getCreditCard($cc_id) {
 function getBillAddress($bill_id) {
 	$data = array();
 	$q = "SELECT * FROM users_billing_address WHERE bill_id = '$bill_id'";
-	$result = mysql_query($q);
+	$result = mysqli_query($q);
 
-	$numrows = mysql_num_rows($result);
+	$numrows = mysqli_num_rows($result);
 
 	if ($numrows) {
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			$data = $row;
 		}
 	}
@@ -176,7 +176,7 @@ function increaseUserCoins($uid, $coins) {
 	global $config;
 	$basedir = $config['basedir'];
 	$q = "UPDATE users SET user_coins = user_coins + $coins WHERE user_id = '$uid'";
-	mysql_query($q);
+	mysqli_query($q);
 	
 	$file = $basedir . '/temp/all_users.txt';
 	if (file_exists($file)) {
@@ -204,7 +204,7 @@ function buyCoin($user_id, $cc_id, $bill_id, $cpid, $tx_method, $order_total, $c
 		$q .= "(tr_tx_id, tr_method, user_id, tr_cc_nt_id, bill_id, cpid, tr_gw_tx_id, tr_amount, tr_coins, tr_date, tr_status) ";
 		$q .= "VALUES";
 		$q .= "('$tx_id', '$tx_method', '$user_id', '$cc_id', '$bill_id', '$cpid', '', '$order_total', '$coins', '$now', 1)";
-		mysql_query($q);
+		mysqli_query($q);
 
 		increaseUserCoins($user_id, $coins);
 		insertUserCoins($user_id, $coins, $tx_id);
@@ -228,10 +228,10 @@ function insertUserCoins($user_id, $coins, $tx_id) {
 	$coindeal = array();
 	$now = time();
 	$q = "INSERT INTO coin_deals (user_id, cd_amount, cd_inout, tx_id, cd_type, cd_tx_date) VALUES ('$user_id', '$coins', 'in', '$tx_id', 'transfer', '$now')";
-	mysql_query($q);
+	mysqli_query($q);
 
 	// append all_coin_deals.txt cache
-    $coindeal['cd_id'] = mysql_insert_id();
+    $coindeal['cd_id'] = mysqli_insert_id();
     $coindeal['user_id'] = $user_id;
     $coindeal['g_id'] = 0;
     $coindeal['cd_amount'] = $coins;

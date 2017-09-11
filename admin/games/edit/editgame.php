@@ -137,7 +137,7 @@ $is_trial = (isset($_POST['isTrial'])) ? $_POST['isTrial'] : '';
 	$q .= "g_schedTo = '$reserve_time2', g_coinPerBet = '$coin_per_bet', g_houseCom = '$house_comm', g_publishType = '$publish_type', ";
 	$q .= "g_isRecommend = '$is_recommend', g_isTrial = '$is_trial', g_japPage = '$jap_page', g_engPage = '$eng_page', g_betMinimum = '$bet_minimum', ";
 	$q .= "g_isCancelled = 0, g_isClosed = 0, g_isDeleted = 0 WHERE g_id = '$game_id'";
-	mysql_query($q);
+	mysqli_query($q);
 
 	$tags = explode(",", $tags);
 	foreach ($tags as $tag) {

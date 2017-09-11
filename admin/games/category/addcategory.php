@@ -23,18 +23,18 @@ if ($cat_name) {
 	$cat_name = trim(ucfirst($cat_name));
 	$cat_name_jp = trim($cat_name_jp);
 	$q = "SELECT * FROM sports_category WHERE sc_name = '$cat_name'";
-	$result = mysql_query($q);
-	$numrows = @mysql_num_rows($result);
+	$result = mysqli_query($q);
+	$numrows = @mysqli_num_rows($result);
 
 
 	if ($numrows) {
 		$q = "UPDATE sports_category SET sc_name_jp = '$cat_name_jp', sc_description = '$cat_desc' WHERE sc_name = '$cat_name'";
-		$result = mysql_query($q);
+		$result = mysqli_query($q);
 		echo json_encode(array('error' => '', 'status' => 'success'));
 	} else {
 		$q = "INSERT INTO sports_category (sc_name, sc_name_jp, sc_description) VALUES ('$cat_name', '$cat_name_jp', '$cat_desc')";
-		mysql_query($q);
-		//return mysql_insert_id();
+		mysqli_query($q);
+		//return mysqli_insert_id();
 		echo json_encode(array('error' => '', 'status' => 'success'));
 	}
 }

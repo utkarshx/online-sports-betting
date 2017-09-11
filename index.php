@@ -1,4 +1,8 @@
 <?php 
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 'On');
+
+
 require_once('include/config.php');
 require_once($basedir . "/include/functions.php");
 
@@ -22,7 +26,8 @@ $sort = (isset($_GET['sort']) AND $_GET['sort'] != '') ? $_GET['sort'] : 'time';
 $q = (isset($_GET['q']) AND $_GET['q'] != '') ? $_GET['q'] : 'live'; // live; results; upcoming
 $page = (isset($_GET['page']) AND $_GET['page'] != '') ? $_GET['page'] : '1';
 $cat_label = ($cat == 'all') ? $lang[280] : ucfirst($cat);
-if (!$cat_label) { exit; }
+if (!$cat_label) { 
+	exit; }
 if ($sort == 'time') {
 	$sort_label = $lang[281]; // End Time
 } elseif ($sort == 'coin') {

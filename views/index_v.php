@@ -2,7 +2,6 @@
 <html>
 <?php include $basedir . '/common/header.php'; ?>
 <body>
-
 	<?php include $basedir . '/common/head.php'; ?>
 
 	<?php if (!$user_id) { ?>
